@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>城市数据整理</title>
+ </head>
+ <body>
+  <button id="stat">开始整理</button>
+  <div id="data"></div>
+  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+  <script>
+  var cityData3=[],cityData2=[],cityData1=[];
+		$("#stat").click(function(){ 
+			$.getJSON("./file.json",function(data){ 
+				//console.log(data.RECORDS);
+				for(var i=0;i<data.RECORDS.length;i++){
+					if(data.RECORDS[i].level==1){
+						var cty1={};
+						cty1.value=data.RECORDS[i].id;
+						cty1.text=data.RECORDS[i].region_name;
+						cty1.children=[];
+						cityData1.push(cty1);
+						//console.log(cityData1);//省份
+					}
+					if(data.RECORDS[i].level==2){
+						var cty2={};
+						cty2.value=data.RECORDS[i].id;
+						cty2.text=data.RECORDS[i].region_name;
+						cty2.parent=data.RECORDS[i].parent_id;
+						cty2.children=[];
+						cityData2.push(cty2);
+						//console.log(cityData2);//城市
+					}
+					if(data.RECORDS[i].level==3){
+						var cty3={};
+						cty3.value=data.RECORDS[i].id;
+						cty3.text=data.RECORDS[i].region_name;
+						cty3.parent=data.RECORDS[i].parent_id;
+						cityData3.push(cty3);
+						//console.log(cityData3);//区县
+					}
+				}
+				//console.log(cityData2);
+				for(var a=0;a<cityData1.length;a++){
+					for(var b=0;b<cityData2.length;b++){
+						if(cityData1[a].value==cityData2[b].parent){
+							var w={};
+							w.value=cityData2[b].value;
+							w.text=cityData2[b].text;
+							w.children=[];
+							cityData1[a].children.push(w);
+							for(var c=0;c<cityData3.length;c++){
+								if(cityData2[b].value==cityData3[c].parent){
+									var q={};
+									q.value=cityData3[c].value;
+									q.text=cityData3[c].text;
+									w.children.push(q);
+								}
+							}
+						}
+					}
+				}
+				$("#data").html(JSON.stringify(cityData1));
+			}) 
+		}) 
+  </script>
+ </body>
+</html>
